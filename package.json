@@ -1,0 +1,17 @@
+{
+  "name": "reddish-proxy",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "coffee proxy.coffee"
+  },
+  "dependencies": {
+    "underscore": "*",
+    "socket.io": "*",
+    "socket.io-client": "*",
+    "optimist": "*",
+    "hiredis": "*",
+    "logging": "*",
+    "redis": "*",
+    "eyes": "*"
+  }
+}
