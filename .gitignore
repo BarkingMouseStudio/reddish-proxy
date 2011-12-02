@@ -1,5 +1,3 @@
 *.rdb
 *.sw*
-BLOG.md
 node_modules
-redis.conf

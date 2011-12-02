@@ -1,17 +1,39 @@
 {
   "name": "reddish-proxy",
+  "description": "Redis proxy for the Reddish service",
   "version": "0.0.1",
+  "keywords": [
+    "redis",
+    "reddish",
+    "proxy"
+  ],
+  "author": "Jim Fleming <jim@freeflow.io> (http://jimfleming.me)",
+  "contributors": [
+    "Danielle Swank <danielle@freeflow.io>"
+  ],
+  "homepage": "https://reddish.freeflow.io",
+  "preferGlobal": true,
+  "main": "index",
   "scripts": {
-    "start": "coffee proxy.coffee"
+    "start": "coffee index.coffee",
+    "test": "vows test/* --spec"
+  },
+  "bin": {
+    "reddish-proxy": "./bin/reddish-proxy"
   },
   "dependencies": {
-    "underscore": "*",
-    "socket.io": "*",
     "socket.io-client": "*",
+    "underscore": "*",
     "optimist": "*",
     "hiredis": "*",
-    "logging": "*",
-    "redis": "*",
-    "eyes": "*"
+    "redis": "*"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": "0.4.7, 0.6.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/FreeFlow/Reddish-Proxy.git"
   }
 }
