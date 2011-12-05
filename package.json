@@ -8,29 +8,34 @@
     "proxy"
   ],
   "author": "Jim Fleming <jim@freeflow.io> (http://jimfleming.me)",
-  "contributors": [
-    "Danielle Swank <danielle@freeflow.io>"
-  ],
+  "contributors": ["Danielle Swank <danielle@freeflow.io> (http://danielleswank.com)"],
   "homepage": "https://reddish.freeflow.io",
   "preferGlobal": true,
+  "private": true,
   "main": "index",
+  "bugs": {
+    "url" : "https://github.com/Freeflow/reddish-proxy/issues",
+    "email" : "us@freeflow.io"
+  },
   "scripts": {
     "start": "coffee index.coffee",
-    "test": "vows test/* --spec"
+    "test": "vows --spec test/*"
   },
-  "bin": {
-    "reddish-proxy": "./bin/reddish-proxy"
+  "directories": {
+    "lib": "./lib",
+    "bin": "./bin"
   },
+  "bin": "./bin/reddish-proxy",
   "dependencies": {
-    "socket.io-client": "*",
+    "coffee-script": "*",
     "underscore": "*",
     "optimist": "*",
     "hiredis": "*",
     "redis": "*"
   },
-  "devDependencies": {},
+  "devDependencies": { "vows": "*" },
   "engines": {
-    "node": "0.4.7, 0.6.3"
+    "node": ">=0.4.7 <=0.6.3"
   },
   "repository": {
     "type": "git",
