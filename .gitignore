@@ -1,3 +1,4 @@
 *.rdb
 *.sw*
-node_modules
+node_modules/
+test/
