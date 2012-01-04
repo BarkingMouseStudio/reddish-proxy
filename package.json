@@ -7,7 +7,6 @@
   "contributors": [ "Danielle Swank <danielle@freeflow.io> (http://danielleswank.com)" ],
   "homepage": "https://reddi.sh",
   "preferGlobal": true,
-  "private": true,
   "main": "index",
   "bugs": {
     "url" : "https://github.com/Freeflow/reddish-proxy/issues",

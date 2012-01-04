@@ -4,12 +4,18 @@ Reddish Proxy
 Simple proxy to expose a local redis instance to the [reddish](https://reddi.sh) service.
 
 
+Installation
+------------
+
+`sudo npm install -g reddish-proxy`
+
+
 Steps to connect
 ----------------
 
-* Create a new connection on reddish (its name should *not* start with the `redis://` protocol)
+* First, create a new connection on reddish (but its name should *not* start with the `redis://` protocol, otherwise reddish will think its a public connection)
 
-* Copy the connection key and pass it to `reddish-proxy`
+* Then just copy the connection key and pass it to `reddish-proxy`
 
         Usage: reddish-proxy --url [url] --key [key]
 
