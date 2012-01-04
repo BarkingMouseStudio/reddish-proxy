@@ -7,7 +7,7 @@ Simple proxy to expose a local redis instance to the [reddish](https://reddi.sh)
 Steps to connect
 ----------------
 
-* Create a new connection on reddish (its name should not start with the `redis://` protocol)
+* Create a new connection on reddish (its name should *not* start with the `redis://` protocol)
 
 * Copy the connection key and pass it to `reddish-proxy`
 
