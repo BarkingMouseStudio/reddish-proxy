@@ -5,7 +5,7 @@
   "keywords": [ "redis", "reddish", "proxy" ],
   "author": "Jim Fleming <jim@freeflow.io> (http://jimfleming.me)",
   "contributors": [ "Danielle Swank <danielle@freeflow.io> (http://danielleswank.com)" ],
-  "homepage": "https://reddish.freeflow.io",
+  "homepage": "https://reddi.sh",
   "preferGlobal": true,
   "private": true,
   "main": "index",

@@ -1,7 +1,14 @@
 Reddish Proxy
 =============
 
-Simple proxy to expose a local redis instance to the [Reddish](https://reddish.freeflow.io) service.
+Simple proxy to expose a local redis instance to the [reddish](https://reddi.sh) service.
+
+Steps to connect
+----------------
+
+* Create a new connection on reddish (its name should not start with the `redis://` protocol)
+
+* Copy the connection key and pass it to `reddish-proxy`
 
 
     Usage: reddish-proxy --url [url] --key [key]
