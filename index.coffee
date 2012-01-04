@@ -78,16 +78,27 @@ redis_monitor_client.setKeepAlive(true)
 # initialize Reddish connection
 
 console.log 'Reddish endpoint connecting...', reddish_port, reddish_hostname
-reddish_endpoint = net.createConnection(reddish_port, reddish_hostname)
+reddish_endpoint = tls.connect reddish_port, reddish_hostname, ->
+  connected = true
+
+  unless handshaken
+    console.log "Handshaking with endpoint at #{reddish_hostname}:#{reddish_port}..."
+    reddish_endpoint.write(data = JSON.stringify(key: key))
+
 reddish_endpoint.setTimeout(0)
 reddish_endpoint.setNoDelay()
-reddish_endpoint.setKeepAlive(true)
+# reddish_endpoint.setKeepAlive(true)
 
 console.log 'Reddish monitor endpoint connecting...', reddish_monitor_port, reddish_hostname
-reddish_monitor_endpoint = net.createConnection(reddish_monitor_port, reddish_hostname)
+reddish_monitor_endpoint = tls.connect reddish_monitor_port, reddish_hostname, ->
+  monitor_connected = true
+
+  unless monitor_handshaken
+    console.log "Handshaking with monitor endpoint at #{reddish_hostname}:#{reddish_monitor_port}..."
+    reddish_monitor_endpoint.write(data = JSON.stringify(key: key))
 reddish_monitor_endpoint.setTimeout(0)
 reddish_monitor_endpoint.setNoDelay()
-reddish_monitor_endpoint.setKeepAlive(true)
+# reddish_monitor_endpoint.setKeepAlive(true)
 
 
 # handle Redis connect event
@@ -97,23 +108,6 @@ redis_client.on 'connect', ->
 
 redis_monitor_client.on 'connect', ->
   console.log "Redis monitor client connected to #{redis_hostname}:#{redis_port}"
-
-
-# handle Reddish connect event
-
-reddish_endpoint.on 'connect', ->
-  connected = true
-
-  unless handshaken
-    console.log "Handshaking with endpoint at #{reddish_hostname}:#{reddish_port}..."
-    reddish_endpoint.write(data = JSON.stringify(key: key))
-
-reddish_monitor_endpoint.on 'connect', ->
-  monitor_connected = true
-
-  unless monitor_handshaken
-    console.log "Handshaking with monitor endpoint at #{reddish_hostname}:#{reddish_monitor_port}..."
-    reddish_monitor_endpoint.write(data = JSON.stringify(key: key))
 
 
 # handle Redis data event
