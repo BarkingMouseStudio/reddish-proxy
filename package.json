@@ -13,7 +13,7 @@
     "email" : "us@freeflow.io"
   },
   "scripts": {
-    "start": "coffee index.coffee",
+    "start": "coffee index.coffee"
   },
   "directories": {
     "lib": "./lib",
