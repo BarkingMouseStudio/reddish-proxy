@@ -19,7 +19,7 @@ argv = optimist
   .demand(['url', 'key'])
   .default('url', 'redis://127.0.0.1:6379')
   .alias('url', 'u')
-  .describe('url', 'A formatted redis url pointing to your redis instance')
+  .describe('url', 'A formatted redis url')
   .describe('key', 'Your Reddish connection key')
   .alias('key', 'k')
   .argv
