@@ -12,10 +12,10 @@ Steps to connect
 * Copy the connection key and pass it to `reddish-proxy`
 
 
-        Usage: reddish-proxy --url [url] --key [key]
+      Usage: reddish-proxy --url [url] --key [key]
 
-        Options:
-          --url, -u  A formatted redis url        [required]  [default: "redis://127.0.0.1:6379"]
-          --key, -k  Your Reddish connection key  [required]
+      Options:
+        --url, -u  A formatted redis url        [required]  [default: "redis://127.0.0.1:6379"]
+        --key, -k  Your Reddish connection key  [required]
 
-        Missing required arguments: key
+      Missing required arguments: key
