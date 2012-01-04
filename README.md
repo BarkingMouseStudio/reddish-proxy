@@ -11,7 +11,6 @@ Steps to connect
 
 * Copy the connection key and pass it to `reddish-proxy`
 
-
       Usage: reddish-proxy --url [url] --key [key]
 
       Options:
