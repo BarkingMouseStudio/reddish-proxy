@@ -51,7 +51,7 @@ unless key_regex.test(key)
 
 reddish_port = 8000
 reddish_monitor_port = 8001
-reddish_hostname = 'dev.freeflow.io'
+reddish_hostname = 'reddi.sh'
 
 
 # setup handshaken and connected state
