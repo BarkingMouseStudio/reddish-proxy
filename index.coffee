@@ -51,7 +51,7 @@ unless key_regex.test(key)
 
 reddish_port = 8000
 reddish_monitor_port = 8001
-reddish_hostname = 'reddi.sh'
+reddish_hostname = 'dev.freeflow.io'
 
 
 # setup handshaken and connected state
@@ -155,7 +155,7 @@ reddish_endpoint.on 'data', (data) ->
         return
 
       console.log 'Endpoint handshake succeeded'
-      console.log "SUCCESS: Proxying redis client at #{redis_hostname}:#{redis_port} to reddish endpoint at #{reddish_hostname}:#{reddish_monitor_port}..."
+      console.log "SUCCESS: Proxying redis client at #{redis_hostname}:#{redis_port} to reddish endpoint at #{reddish_hostname}:#{reddish_port}..."
       handshaken = true
     catch err then console.error 'ERROR: Endpoint handshake failed:', err
     return
