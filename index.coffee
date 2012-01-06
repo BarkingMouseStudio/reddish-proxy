@@ -51,7 +51,7 @@ unless key_regex.test(key)
 
 reddish_port = 8000
 reddish_monitor_port = 8001
-reddish_hostname = 'reddi.sh'
+reddish_hostname = if env = process.env.NODE_ENV is 'test' then 'dev.freeflow.io' else 'reddi.sh'
 
 
 # setup handshaken and connected state
