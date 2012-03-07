@@ -1,7 +1,7 @@
 {
   "name": "reddish-proxy",
   "description": "Redis proxy for the Reddish service",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "keywords": [ "redis", "reddish", "proxy" ],
   "author": "Jim Fleming <jim@freeflow.io> (http://jimfleming.me)",
   "contributors": [ "Danielle Swank <danielle@freeflow.io> (http://danielleswank.com)" ],
@@ -27,7 +27,6 @@
     "hiredis": "*",
     "redis": "*"
   },
-  "engines": { "node": ">=0.4.7 <=0.6.3" },
   "repository": {
     "type": "git",
     "url": "git://github.com/FreeFlow/Reddish-Proxy.git"

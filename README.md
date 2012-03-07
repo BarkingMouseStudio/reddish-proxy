@@ -1,7 +1,11 @@
 Reddish Proxy
 =============
 
-Simple proxy to expose a local redis instance to the [reddish](https://reddi.sh) service.
+Simple proxy to expose a local redis instance to the [reddi.sh](https://reddi.sh) service.
+
+We're still actively developing this proxy and the reddish service so please update often.
+
+We'll announce changes on our Twitter account [@reddishapp](https://twitter.com/reddishapp).
 
 
 Installation
