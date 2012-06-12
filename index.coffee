@@ -1,202 +1,173 @@
-# set the process title for `ps`
-
 process.title = 'reddish-proxy'
-
-
-# import modules
 
 url = require 'url'
 net = require 'net'
-tls = require 'tls'
 redis = require 'redis'
 optimist = require 'optimist'
+tls = require 'tls'
 
-
-# setup command line arguments
-
-argv = optimist
-  .usage("Usage: #{process.title} --url [url] --key [key]")
-  .demand(['url', 'key'])
-  .default('url', 'redis://127.0.0.1:6379')
-  .alias('url', 'u')
-  .describe('url', 'A formatted redis url')
-  .describe('key', 'Your Reddish connection key')
+options = optimist
+  .usage("Usage: #{process.title} --local [local] --remote [remote] --key [key] -p1 [port] -p2 [port]")
+  .demand(['local', 'remote', 'key'])
+  .default('local', 'redis://127.0.0.1:6379')
+  .default('remote', 'https://reddi.sh')
+  .default('remote_port', 8000)
+  .default('remote_monitor_port', 8001)
+  .default('secure', false)
+  .default('verbose', false)
+  .boolean('secure')
+  .boolean('verbose')
+  .describe('help', 'Print this help text.')
+  .describe('key', 'Your Reddish connection key from your reddish instance.')
+  .describe('local', 'The redis:// url to your local redis server.')
+  .describe('remote', 'The url to your remote reddish instance socket.')
+  .describe('remote_port', 'The standard port to your remote reddish instance socket.')
+  .describe('remote_monitor_port', 'The monitor port to your remote reddish instance socket.')
+  .describe('secure', 'Should TLS/SSL be used (your reddish server will need to be configured with certs).')
+  .describe('verbose', 'Turn on extra logging.')
+  .alias('local', 'l')
+  .alias('remote', 'r')
+  .alias('remote_port', 'p1')
+  .alias('remote_monitor_port', 'p2')
   .alias('key', 'k')
+  .alias('secure', 's')
+  .alias('verbose', 'v')
   .argv
 
-
-# deconstruct args
-
-{ key, url: arg_url } = argv
+{ key, local, remote, verbose, secure } = options
 
 
-# connection key validation regex
+# cli colors
+
+R = "\x1b[31m"
+G = "\x1b[32m"
+Y = "\x1b[33m"
+X = "\x1b[39m"
+
+
+# validate the connection key
 
 key_regex = /^[a-f0-9]{40}$/i
 
-
-# valid the connection key
-
 unless key_regex.test(key)
-  console.error 'ERROR: Invalid connection key', key
+  console.error "#{R}ERROR#{X}", 'Invalid connection key', key
   return
 
 
 # deconstruct `redis://` url
 
-{ port: redis_port, hostname: redis_hostname } = url.parse(arg_url)
+{ protocol, port: local_port, hostname: local_hostname } = url.parse(local)
 
 
-# setup Reddish connection details
+# validate the connection key
 
-reddish_port = 8000
-reddish_monitor_port = 8001
-reddish_hostname = if env = process.env.NODE_ENV is 'test' then 'dev.freeflow.io' else 'reddi.sh'
+local_protocol_regex = /^redis/i
 
+unless local_protocol_regex.test(protocol)
+  console.error "#{R}ERROR#{X}", 'Invalid redis protocol', protocol
+  return
 
-# setup handshaken and connected state
-
-handshaken = monitor_handshaken = false
-connected = monitor_connected = false
-
-
-# initialize Redis connection
-
-console.log 'Redis client connecting...', redis_port, redis_hostname
-redis_client = net.createConnection(redis_port, redis_hostname)
-redis_client.setTimeout(0)
-redis_client.setNoDelay()
-redis_client.setKeepAlive(true)
-
-console.log 'Redis monitor client connecting...', redis_port, redis_hostname
-redis_monitor_client = net.createConnection(redis_port, redis_hostname)
-redis_monitor_client.setTimeout(0)
-redis_monitor_client.setNoDelay()
-redis_monitor_client.setKeepAlive(true)
+options.local_hostname = local_hostname
+options.local_port = local_port
 
 
-# initialize Reddish connection
+# deconstruct Reddish connection details
 
-console.log 'Reddish endpoint connecting...', reddish_port, reddish_hostname
-reddish_endpoint = tls.connect reddish_port, reddish_hostname, ->
-  connected = true
+{ hostname: remote_hostname } = url.parse(remote)
 
-  unless handshaken
-    console.log "Handshaking with endpoint at #{reddish_hostname}:#{reddish_port}..."
-    reddish_endpoint.write(data = JSON.stringify(key: key))
-
-reddish_endpoint.setTimeout(0)
-reddish_endpoint.setNoDelay()
-# reddish_endpoint.setKeepAlive(true)
-
-console.log 'Reddish monitor endpoint connecting...', reddish_monitor_port, reddish_hostname
-reddish_monitor_endpoint = tls.connect reddish_monitor_port, reddish_hostname, ->
-  monitor_connected = true
-
-  unless monitor_handshaken
-    console.log "Handshaking with monitor endpoint at #{reddish_hostname}:#{reddish_monitor_port}..."
-    reddish_monitor_endpoint.write(data = JSON.stringify(key: key))
-reddish_monitor_endpoint.setTimeout(0)
-reddish_monitor_endpoint.setNoDelay()
-# reddish_monitor_endpoint.setKeepAlive(true)
+options.remote_hostname = remote_hostname
 
 
-# handle Redis connect event
+class Connection
+  @verbose: verbose
+  @secure: secure
 
-redis_client.on 'connect', ->
-  console.log "Redis client connected to #{redis_hostname}:#{redis_port}"
+  handshaken: false
+  connected: false
 
-redis_monitor_client.on 'connect', ->
-  console.log "Redis monitor client connected to #{redis_hostname}:#{redis_port}"
+  handleLocalConnect: =>
+    console.log "Local redis client connected", "#{@local_hostname}:#{@local_port}" if Connection.verbose
 
+  handleLocalData: (data) =>
+    @remote_endpoint.write(data) if @remote_endpoint and @handshaken
 
-# handle Redis data event
+  handleLocalClose: (err) =>
+    console.error "#{R}ERROR#{X}", 'Local client closed', "#{@local_hostname}:#{@local_port}"
+    if @connected
+      console.error "#{R}ERROR#{X}", 'Reconnecting Local client', "#{@local_hostname}:#{@local_port}"
+      @local_client.connect(@local_port, @local_hostname) 
 
-redis_client.on 'data', (data) ->
-  reddish_endpoint.write(data) if handshaken
+  handleLocalError: (err) =>
+    console.error "#{R}ERROR#{X}", 'Local client error', err.message if err
 
-redis_monitor_client.on 'data', (data) ->
-  reddish_monitor_endpoint.write(data) if monitor_handshaken
+  initializeLocalConnection: (options) ->
+    console.log 'Local redis client connecting...', "#{@local_hostname}:#{@local_port}" if Connection.verbose
 
+    @local_client = net.createConnection(@local_port, @local_hostname)
+    @local_client.setTimeout(0)
+    @local_client.setNoDelay()
+    @local_client.setKeepAlive(true)
 
-# handle Redis close event
+    @local_client.on 'connect', @handleLocalConnect
+    @local_client.on 'data', @handleLocalData
+    @local_client.on 'close', @handleLocalClose
+    @local_client.on 'error', @handleLocalError
 
-redis_client.on 'close', (err) ->
-  console.error 'ERROR: Redis client closed'
-  if connected
-    console.error 'ERROR: Reconnecting Redis client'
-    redis_client.connect(redis_port, redis_hostname) 
+  handleRemoteConnect: =>
+    @connected = true
 
-redis_monitor_client.on 'close', (err) ->
-  console.error 'ERROR: Redis monitor client closed'
-  if monitor_connected
-    console.error 'ERROR: Reconnecting monitor Redis client'
-    redis_client.connect(redis_port, redis_hostname) 
+    unless @handshaken
+      console.log "Handshaking with endpoint at #{@remote_hostname}:#{@remote_port}..." if Connection.verbose
+      @remote_endpoint.write(data = JSON.stringify(key: @key))
 
-
-# handle Redis error event
-
-redis_client.on 'error', (err) ->
-  console.error 'ERROR: Redis client error', err.message if err
-
-redis_monitor_client.on 'error', (err) ->
-  console.error 'ERROR: Redis monitor client error', err.message if err
-
-
-# handle Reddish data event
-
-reddish_endpoint.on 'data', (data) ->
-  unless handshaken
+  handleRemoteHandshake: (data) =>
     try
       json = JSON.parse(data.toString())
 
       if err = json?.error
-        console.error 'ERROR: Endpoint handshake failed:', err
+        console.error "#{R}ERROR#{X}", 'Endpoint handshake failed:', err
         return
 
-      console.log 'Endpoint handshake succeeded'
-      console.log "SUCCESS: Proxying redis client at #{redis_hostname}:#{redis_port} to reddish endpoint at #{reddish_hostname}:#{reddish_port}..."
-      handshaken = true
-    catch err then console.error 'ERROR: Endpoint handshake failed:', err
-    return
+      console.log "#{G}SUCCESS#{X}", "Proxying redis client at #{@local_hostname}:#{@local_port} to reddish endpoint at #{@remote_hostname}:#{@remote_port}..."
+      @handshaken = true
+    catch err
+      console.error "#{R}ERROR#{X}", 'Endpoint handshake failed:', err
 
-  redis_client.write(data)
+  handleRemoteData: (data) =>
+    unless @handshaken
+      return @handleRemoteHandshake(data)
 
-reddish_monitor_endpoint.on 'data', (data) ->
-  unless monitor_handshaken
-    try
-      json = JSON.parse(data.toString())
+    @local_client.write(data)
 
-      if err = json?.error
-        console.error 'ERROR: Monitor endpoint handshake failed:', err
-        return
+  handleRemoteClose: (err) =>
+    @connected = false
+    console.error "#{R}ERROR#{X}", 'Remote endpoint closed, closing Local client', (err.message if err)
+    @local_client.end()
 
-      console.log 'Monitor endpoint handshake succeeded'
-      console.log "SUCCESS: Proxying redis monitor client at #{redis_hostname}:#{redis_port} to reddish monitor endpoint at #{reddish_hostname}:#{reddish_monitor_port}..."
-      monitor_handshaken = true
-    catch err then console.error 'ERROR: Monitor endpoint handshake failed:', err
-    return
+  handleRemoteError: (err) =>
+    console.error "#{R}ERROR#{X}", 'Remote endpoint error', (err.message if err)
 
-  redis_monitor_client.write(data)
+  initializeRemoteConnection: ->
+    console.log 'Remote endpoint connecting...', "#{@remote_hostname}:#{@remote_port}" if Connection.verbose
 
+    if Connection.secure
+      @remote_endpoint = tls.connect @remote_port, @remote_hostname, @handleRemoteConnect
+    else
+      @remote_endpoint = net.connect @remote_port, @remote_hostname, @handleRemoteConnect
 
-# handle Reddish close event
+    @remote_endpoint.setTimeout(0)
+    @remote_endpoint.setNoDelay()
+    @remote_endpoint.setKeepAlive(true)
 
-reddish_endpoint.on 'close', (err) ->
-  connected = false
-  console.error 'ERROR: Reddish endpoint closed: closing Redis client'
-  redis_client.end()
+    @remote_endpoint.on 'data', @handleRemoteData
+    @remote_endpoint.on 'close', @handleRemoteClose
+    @remote_endpoint.on 'error', @handleRemoteError
 
-reddish_monitor_endpoint.on 'close', (err) ->
-  monitor_connected = false
-  console.error 'ERROR: Reddish monitor endpoint closed: closing Redis monitor client'
-  redis_monitor_client.end()
+  constructor: (@remote_port, options) ->
+    { @local_hostname, @local_port, @remote_hostname, @key } = options
 
+    @initializeLocalConnection()
+    @initializeRemoteConnection()
 
-# handle Reddish error event
-
-reddish_endpoint.on 'error', (err) ->
-  console.error 'ERROR: Reddish endpoint error', err.message if err
-
-reddish_monitor_endpoint.on 'error', (err) ->
-  console.error 'ERROR: Reddish monitor endpoint error', err.message if err
+remote_connection = new Connection(options.remote_port, options)
+remote_monitor_connection = new Connection(options.remote_monitor_port, options)
