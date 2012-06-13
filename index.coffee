@@ -154,10 +154,10 @@ class Connection
       @remote_endpoint = tls.connect @remote_port, @remote_hostname, @handleRemoteConnect
     else
       @remote_endpoint = net.connect @remote_port, @remote_hostname, @handleRemoteConnect
+      @remote_endpoint.setKeepAlive(true)
 
     @remote_endpoint.setTimeout(0)
     @remote_endpoint.setNoDelay()
-    @remote_endpoint.setKeepAlive(true)
 
     @remote_endpoint.on 'data', @handleRemoteData
     @remote_endpoint.on 'close', @handleRemoteClose
