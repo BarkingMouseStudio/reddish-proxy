@@ -10,7 +10,7 @@ options = optimist
   .usage("Usage: #{process.title} --local [local] --remote [remote] --key [key] -p1 [port] -p2 [port]")
   .demand(['local', 'remote', 'key'])
   .default('local', 'redis://127.0.0.1:6379')
-  .default('remote', 'http://127.0.0.1')
+  .default('remote', 'https://reddi.sh')
   .default('remote_port', 8000)
   .default('remote_monitor_port', 8001)
   .default('secure', false)
