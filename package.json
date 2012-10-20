@@ -1,36 +1,37 @@
 {
   "name": "reddish-proxy",
-  "description": "Redis proxy for the Reddish",
-  "version": "0.1.2",
+  "description": "Proxy for Reddish",
   "keywords": [ "redis", "reddish", "proxy" ],
+  "version": "0.1.2",
   "author": "Jim Fleming <jim@freeflow.io> (http://jimfleming.me)",
   "contributors": [
     "Danielle Swank <danielle@freeflow.io> (http://danielleswank.com)"
   ],
-  "homepage": "https://reddi.sh",
+  "homepage": "http://github.com/FreeFlow/reddish-proxy",
   "preferGlobal": true,
-  "main": "index",
   "bugs": {
     "url" : "https://github.com/Freeflow/reddish-proxy/issues",
     "email" : "us@freeflow.io"
-  },
-  "scripts": {
-    "start": "coffee index.coffee"
   },
   "directories": {
     "lib": "./lib",
     "bin": "./bin"
   },
+  "scripts": {
+    "start": "coffee index.coffee"
+  },
+  "main": "index",
   "bin": "./bin/reddish-proxy",
   "dependencies": {
-    "coffee-script": "*",
-    "underscore": "*",
-    "optimist": "*",
-    "hiredis": "*",
-    "redis": "*"
+    "coffee-script": "1.3.3",
+    "underscore": "1.4.2",
+    "optimist": "0.3.5",
+    "hiredis": "0.1.14",
+    "redis": "0.7.1"
   },
   "engines": {
-    "node": ">=0.6.0 <=1.0.0"
+    "node": ">=0.8.8",
+    "npm": ">=1.1.59"
   },
   "repository": {
     "type": "git",
