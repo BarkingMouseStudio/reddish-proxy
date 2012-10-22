@@ -1,2 +1,2 @@
-#!/usr/bin/env coffee
-require '../index'
+#!/usr/bin/env node
+require('../index');
