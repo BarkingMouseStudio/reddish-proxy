@@ -20,7 +20,7 @@ Options:
   --help                       Print this help text.                                                              
   --key, -k                    Your Reddish connection key from your reddish instance.                              [required]
   --local, -l                  The redis:// url to your local redis server.                                         [required]  [default: "redis://127.0.0.1:6379"]
-  --remote, -r                 The url to your remote reddish instance socket.                                      [required]  [default: "redis://127.0.0.1:6379"]
+  --remote, -r                 The url to your remote reddish instance socket.                                      [required]  [default: "http://127.0.0.1"]
   --remote_port, --p1          The standard port to your remote reddish instance socket.                            [default: 8000]
   --remote_monitor_port, --p2  The monitor port to your remote reddish instance socket.                             [default: 8001]
   --secure, -s                 Should TLS/SSL be used (your reddish server will need to be configured with certs).  [boolean]  [default: false]
